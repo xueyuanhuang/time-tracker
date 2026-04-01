@@ -63,6 +63,17 @@ export async function putAllRecords(records: TimeRecord[]): Promise<void> {
   });
 }
 
+export async function deleteRecord(id: string): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_RECORDS, "readwrite");
+    const store = tx.objectStore(STORE_RECORDS);
+    store.delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 export async function getSessionStart(): Promise<number | null> {
   const db = await openDB();
   return new Promise((resolve, reject) => {

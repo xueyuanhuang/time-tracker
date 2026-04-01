@@ -7,14 +7,19 @@ import { formatDuration, formatTime } from "@/lib/time";
 interface TimelineProps {
   records: TimeRecord[];
   onUpdateLabel: (id: string, label: string) => void;
+  onDeleteLatest: () => void;
 }
 
 function TimelineItem({
   record,
   onUpdateLabel,
+  isLatest,
+  onDelete,
 }: {
   record: TimeRecord;
   onUpdateLabel: (id: string, label: string) => void;
+  isLatest: boolean;
+  onDelete?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(record.label);
@@ -85,14 +90,27 @@ function TimelineItem({
           {formatDuration(record.endTime - record.startTime)}
         </span>
       </div>
-      <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
-        {formatTime(record.startTime)} – {formatTime(record.endTime)}
-      </p>
+      <div className="flex items-center justify-between mt-1">
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+          {formatTime(record.startTime)} – {formatTime(record.endTime)}
+        </p>
+        {isLatest && onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="text-xs text-red-400 hover:text-red-500 transition-colors"
+          >
+            撤销
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
-export function Timeline({ records, onUpdateLabel }: TimelineProps) {
+export function Timeline({ records, onUpdateLabel, onDeleteLatest }: TimelineProps) {
   if (records.length === 0) {
     return (
       <p className="text-center text-zinc-400 dark:text-zinc-500 py-8 text-sm">
@@ -105,11 +123,13 @@ export function Timeline({ records, onUpdateLabel }: TimelineProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {reversed.map((record) => (
+      {reversed.map((record, index) => (
         <TimelineItem
           key={record.id}
           record={record}
           onUpdateLabel={onUpdateLabel}
+          isLatest={index === 0}
+          onDelete={index === 0 ? onDeleteLatest : undefined}
         />
       ))}
     </div>

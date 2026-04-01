@@ -6,6 +6,7 @@ import { generateId } from "@/lib/time";
 import {
   getRecords,
   putRecord,
+  deleteRecord as dbDeleteRecord,
   getSessionStart,
   setSessionStart,
   migrateFromLocalStorage,
@@ -66,6 +67,19 @@ export function useTimeRecords() {
     [records]
   );
 
+  const deleteLatestRecord = useCallback(async () => {
+    if (records.length === 0) return;
+    const latest = records[records.length - 1];
+    const remaining = records.slice(0, -1);
+    setRecords(remaining);
+
+    // Roll back sessionStart to the deleted record's startTime
+    const newStart = latest.startTime;
+    setSessionStartVal(newStart);
+    await dbDeleteRecord(latest.id);
+    await setSessionStart(newStart);
+  }, [records]);
+
   const importRecords = useCallback(async (imported: TimeRecord[]) => {
     const { putAllRecords } = await import("@/lib/db");
     await putAllRecords(imported);
@@ -78,6 +92,7 @@ export function useTimeRecords() {
     hydrated,
     addRecord,
     updateLabel,
+    deleteLatestRecord,
     importRecords,
   };
 }

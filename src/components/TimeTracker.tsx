@@ -7,7 +7,7 @@ import { Timeline } from "./Timeline";
 import { DataBackup } from "./DataBackup";
 
 export function TimeTracker() {
-  const { records, sessionStart, hydrated, addRecord, updateLabel, importRecords } =
+  const { records, sessionStart, hydrated, addRecord, updateLabel, deleteLatestRecord, importRecords } =
     useTimeRecords();
 
   if (!hydrated) {
@@ -18,7 +18,7 @@ export function TimeTracker() {
     <div className="flex flex-col gap-6">
       {sessionStart && <CurrentSession sessionStart={sessionStart} />}
       <RecordInput onSubmit={addRecord} />
-      <Timeline records={records} onUpdateLabel={updateLabel} />
+      <Timeline records={records} onUpdateLabel={updateLabel} onDeleteLatest={deleteLatestRecord} />
       <DataBackup records={records} onImport={importRecords} />
     </div>
   );
