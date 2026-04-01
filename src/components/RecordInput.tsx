@@ -4,35 +4,53 @@ import { useState, useRef, useEffect } from "react";
 
 export function RecordInput({ onSubmit }: { onSubmit: (label: string) => void }) {
   const [value, setValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    textareaRef.current?.focus();
   }, []);
+
+  const autoResize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  };
 
   const handleSubmit = () => {
     const trimmed = value.trim();
     if (!trimmed) return;
     onSubmit(trimmed);
     setValue("");
-    inputRef.current?.focus();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.focus();
+    }
   };
 
   return (
-    <div className="flex gap-2">
-      <input
-        ref={inputRef}
-        type="text"
+    <div className="flex gap-2 items-end">
+      <textarea
+        ref={textareaRef}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+        onChange={(e) => {
+          setValue(e.target.value);
+          autoResize();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
+          }
+        }}
         placeholder="刚刚在做什么..."
-        className="flex-1 h-12 px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-base outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 transition-shadow"
+        rows={1}
+        className="flex-1 min-h-[48px] max-h-[120px] px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-base outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 transition-shadow resize-none leading-normal"
       />
       <button
         onClick={handleSubmit}
         disabled={!value.trim()}
-        className="h-12 px-5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium text-base disabled:opacity-40 transition-opacity"
+        className="h-12 px-5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium text-base disabled:opacity-40 transition-opacity shrink-0"
       >
         记录
       </button>

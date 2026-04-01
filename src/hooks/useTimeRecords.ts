@@ -55,6 +55,19 @@ export function useTimeRecords() {
     [sessionStartVal]
   );
 
+  const updateLabel = useCallback(
+    async (id: string, label: string) => {
+      setRecords((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, label } : r))
+      );
+      const record = records.find((r) => r.id === id);
+      if (record) {
+        await putRecord({ ...record, label });
+      }
+    },
+    [records]
+  );
+
   const importRecords = useCallback(async (imported: TimeRecord[]) => {
     const { putAllRecords } = await import("@/lib/db");
     await putAllRecords(imported);
@@ -66,6 +79,7 @@ export function useTimeRecords() {
     sessionStart: sessionStartVal,
     hydrated,
     addRecord,
+    updateLabel,
     importRecords,
   };
 }
