@@ -25,7 +25,9 @@ export function useTimeRecords() {
 
       let start = await getSessionStart();
       if (!start) {
-        start = Date.now();
+        // Recover from last record's endTime if available
+        const lastRecord = storedRecords[storedRecords.length - 1];
+        start = lastRecord ? lastRecord.endTime : Date.now();
         await setSessionStart(start);
       }
       setSessionStartVal(start);
