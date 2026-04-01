@@ -18,14 +18,25 @@ export function useTimeRecords() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    async function readRecordsWithRetry(retries = 3): Promise<TimeRecord[]> {
+      for (let i = 0; i < retries; i++) {
+        const result = await getRecords();
+        if (result.length > 0) return result;
+        if (i < retries - 1) await new Promise((r) => setTimeout(r, 500));
+      }
+      return [];
+    }
+
     async function init() {
       await migrateFromLocalStorage();
 
-      const storedRecords = await getRecords();
+      const storedRecords = await readRecordsWithRetry();
       setRecords(storedRecords);
 
       const lastRecord = storedRecords[storedRecords.length - 1];
-      const start = lastRecord ? lastRecord.endTime : ((await getSessionStart()) || Date.now());
+      const start = lastRecord
+        ? lastRecord.endTime
+        : (await getSessionStart()) || Date.now();
       await setSessionStart(start);
       setSessionStartVal(start);
       setHydrated(true);
