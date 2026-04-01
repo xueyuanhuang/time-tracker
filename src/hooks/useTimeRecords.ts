@@ -23,13 +23,9 @@ export function useTimeRecords() {
       const storedRecords = await getRecords();
       setRecords(storedRecords);
 
-      let start = await getSessionStart();
-      if (!start) {
-        // Recover from last record's endTime if available
-        const lastRecord = storedRecords[storedRecords.length - 1];
-        start = lastRecord ? lastRecord.endTime : Date.now();
-        await setSessionStart(start);
-      }
+      const lastRecord = storedRecords[storedRecords.length - 1];
+      const start = lastRecord ? lastRecord.endTime : ((await getSessionStart()) || Date.now());
+      await setSessionStart(start);
       setSessionStartVal(start);
       setHydrated(true);
     }
