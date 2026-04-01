@@ -4,9 +4,11 @@ import { useTimeRecords } from "@/hooks/useTimeRecords";
 import { CurrentSession } from "./CurrentSession";
 import { RecordInput } from "./RecordInput";
 import { Timeline } from "./Timeline";
+import { DataBackup } from "./DataBackup";
 
 export function TimeTracker() {
-  const { records, sessionStart, hydrated, addRecord } = useTimeRecords();
+  const { records, sessionStart, hydrated, addRecord, importRecords } =
+    useTimeRecords();
 
   if (!hydrated) {
     return null;
@@ -17,6 +19,7 @@ export function TimeTracker() {
       {sessionStart && <CurrentSession sessionStart={sessionStart} />}
       <RecordInput onSubmit={addRecord} />
       <Timeline records={records} />
+      <DataBackup records={records} onImport={importRecords} />
     </div>
   );
 }

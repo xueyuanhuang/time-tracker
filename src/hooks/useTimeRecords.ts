@@ -2,57 +2,70 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { TimeRecord } from "@/types";
-import { STORAGE_KEYS } from "@/types";
 import { generateId } from "@/lib/time";
+import {
+  getRecords,
+  putRecord,
+  getSessionStart,
+  setSessionStart,
+  migrateFromLocalStorage,
+} from "@/lib/db";
 
 export function useTimeRecords() {
   const [records, setRecords] = useState<TimeRecord[]>([]);
-  const [sessionStart, setSessionStart] = useState<number | null>(null);
+  const [sessionStartVal, setSessionStartVal] = useState<number | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
-  // Load from localStorage on mount
   useEffect(() => {
-    const storedRecords = localStorage.getItem(STORAGE_KEYS.RECORDS);
-    if (storedRecords) {
-      setRecords(JSON.parse(storedRecords));
-    }
+    async function init() {
+      await migrateFromLocalStorage();
 
-    const storedStart = localStorage.getItem(STORAGE_KEYS.SESSION_START);
-    if (storedStart) {
-      setSessionStart(Number(storedStart));
-    } else {
-      const now = Date.now();
-      localStorage.setItem(STORAGE_KEYS.SESSION_START, String(now));
-      setSessionStart(now);
-    }
+      const storedRecords = await getRecords();
+      setRecords(storedRecords);
 
-    setHydrated(true);
+      let start = await getSessionStart();
+      if (!start) {
+        start = Date.now();
+        await setSessionStart(start);
+      }
+      setSessionStartVal(start);
+      setHydrated(true);
+    }
+    init();
   }, []);
 
   const addRecord = useCallback(
-    (label: string) => {
-      if (!sessionStart) return;
+    async (label: string) => {
+      if (!sessionStartVal) return;
 
       const now = Date.now();
       const newRecord: TimeRecord = {
         id: generateId(),
         label: label.trim(),
-        startTime: sessionStart,
+        startTime: sessionStartVal,
         endTime: now,
       };
 
-      const updatedRecords = [...records, newRecord];
-      setRecords(updatedRecords);
-      localStorage.setItem(
-        STORAGE_KEYS.RECORDS,
-        JSON.stringify(updatedRecords)
-      );
+      setRecords((prev) => [...prev, newRecord]);
+      setSessionStartVal(now);
 
-      setSessionStart(now);
-      localStorage.setItem(STORAGE_KEYS.SESSION_START, String(now));
+      await putRecord(newRecord);
+      await setSessionStart(now);
     },
-    [sessionStart, records]
+    [sessionStartVal]
   );
 
-  return { records, sessionStart, hydrated, addRecord };
+  const importRecords = useCallback(async (imported: TimeRecord[]) => {
+    const { putAllRecords } = await import("@/lib/db");
+    await putAllRecords(imported);
+    setRecords(imported);
+  }, []);
+
+  return {
+    records,
+    sessionStart: sessionStartVal,
+    hydrated,
+    addRecord,
+    importRecords,
+  };
 }
