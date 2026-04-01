@@ -98,7 +98,7 @@ function TimelineItem({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onDelete();
+              if (confirm("确定撤销这条记录吗？")) onDelete();
             }}
             className="text-xs text-red-400 hover:text-red-500 transition-colors"
           >
