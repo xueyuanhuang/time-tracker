@@ -37,12 +37,6 @@ export function RecordInput({ onSubmit }: { onSubmit: (label: string) => void })
           setValue(e.target.value);
           autoResize();
         }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit();
-          }
-        }}
         placeholder="刚刚在做什么..."
         rows={1}
         className="flex-1 min-h-[48px] max-h-[120px] px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-base outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 transition-shadow resize-none leading-normal"
