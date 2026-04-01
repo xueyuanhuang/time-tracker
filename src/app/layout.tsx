@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "时间流记录",
+  title: "时间沙漏",
   description: "倒叙标记式时间记录工具",
+  icons: { icon: "/logo.svg" },
 };
 
 export default function RootLayout({
