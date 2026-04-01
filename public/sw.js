@@ -1,4 +1,4 @@
-const CACHE_VERSION = "time-tracker-v7";
+const CACHE_VERSION = "time-tracker-v8";
 const PRECACHE_URLS = ["/", "/logo.svg", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
