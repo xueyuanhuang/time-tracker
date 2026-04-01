@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { TimeRecord } from "@/types";
 import { generateId } from "@/lib/time";
 import {
@@ -14,31 +14,30 @@ import {
 
 export function useTimeRecords() {
   const [records, setRecords] = useState<TimeRecord[]>([]);
-  const [sessionStartVal, setSessionStartVal] = useState<number | null>(null);
+  // initialStart is only used when there are no records
+  const [initialStart, setInitialStart] = useState<number | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => {
-    async function readRecordsWithRetry(retries = 3): Promise<TimeRecord[]> {
-      for (let i = 0; i < retries; i++) {
-        const result = await getRecords();
-        if (result.length > 0) return result;
-        if (i < retries - 1) await new Promise((r) => setTimeout(r, 500));
-      }
-      return [];
-    }
+  // Always derive sessionStart from records — never stale
+  const sessionStart = useMemo(() => {
+    if (records.length > 0) return records[records.length - 1].endTime;
+    return initialStart;
+  }, [records, initialStart]);
 
+  useEffect(() => {
     async function init() {
       await migrateFromLocalStorage();
 
-      const storedRecords = await readRecordsWithRetry();
+      const storedRecords = await getRecords();
       setRecords(storedRecords);
 
-      const lastRecord = storedRecords[storedRecords.length - 1];
-      const start = lastRecord
-        ? lastRecord.endTime
-        : (await getSessionStart()) || Date.now();
-      await setSessionStart(start);
-      setSessionStartVal(start);
+      // Only matters when no records exist
+      if (storedRecords.length === 0) {
+        const start = (await getSessionStart()) || Date.now();
+        await setSessionStart(start);
+        setInitialStart(start);
+      }
+
       setHydrated(true);
     }
     init();
@@ -46,23 +45,22 @@ export function useTimeRecords() {
 
   const addRecord = useCallback(
     async (label: string) => {
-      if (!sessionStartVal) return;
+      if (!sessionStart) return;
 
       const now = Date.now();
       const newRecord: TimeRecord = {
         id: generateId(),
         label: label.trim(),
-        startTime: sessionStartVal,
+        startTime: sessionStart,
         endTime: now,
       };
 
       setRecords((prev) => [...prev, newRecord]);
-      setSessionStartVal(now);
 
       await putRecord(newRecord);
       await setSessionStart(now);
     },
-    [sessionStartVal]
+    [sessionStart]
   );
 
   const updateLabel = useCallback(
@@ -81,14 +79,15 @@ export function useTimeRecords() {
   const deleteLatestRecord = useCallback(async () => {
     if (records.length === 0) return;
     const latest = records[records.length - 1];
-    const remaining = records.slice(0, -1);
-    setRecords(remaining);
+    setRecords((prev) => prev.slice(0, -1));
 
-    // Roll back sessionStart to the deleted record's startTime
-    const newStart = latest.startTime;
-    setSessionStartVal(newStart);
     await dbDeleteRecord(latest.id);
-    await setSessionStart(newStart);
+    // sessionStart auto-derives from new last record's endTime
+    // or falls back to latest.startTime if no records left
+    if (records.length === 1) {
+      setInitialStart(latest.startTime);
+      await setSessionStart(latest.startTime);
+    }
   }, [records]);
 
   const importRecords = useCallback(async (imported: TimeRecord[]) => {
@@ -99,7 +98,7 @@ export function useTimeRecords() {
 
   return {
     records,
-    sessionStart: sessionStartVal,
+    sessionStart,
     hydrated,
     addRecord,
     updateLabel,

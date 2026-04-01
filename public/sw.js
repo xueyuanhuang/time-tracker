@@ -1,5 +1,5 @@
-const CACHE_VERSION = "time-tracker-v9";
-const PRECACHE_URLS = ["/", "/logo.svg", "/manifest.json"];
+const CACHE_VERSION = "time-tracker-v10";
+const PRECACHE_URLS = ["/logo.svg", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,20 +26,21 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Only handle same-origin GET requests
   if (event.request.method !== "GET") return;
   if (!event.request.url.startsWith(self.location.origin)) return;
 
-  // Network first, fallback to cache
+  const url = new URL(event.request.url);
+
+  // Static assets: cache-first (icons, images, manifest)
+  if (PRECACHE_URLS.some((p) => url.pathname === p)) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => cached || fetch(event.request))
+    );
+    return;
+  }
+
+  // HTML and JS: network-only, fallback to cache for offline
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_VERSION).then((cache) => {
-          cache.put(event.request, clone);
-        });
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
