@@ -5,6 +5,7 @@ import { CurrentSession } from "./CurrentSession";
 import { RecordInput } from "./RecordInput";
 import { Timeline } from "./Timeline";
 import { DataBackup } from "./DataBackup";
+import { WechatCTA } from "./WechatCTA";
 
 export function TimeTracker() {
   const { records, sessionStart, hydrated, addRecord, updateLabel, deleteLatestRecord, importRecords } =
@@ -20,6 +21,7 @@ export function TimeTracker() {
       <RecordInput onSubmit={addRecord} />
       <Timeline records={records} onUpdateLabel={updateLabel} onDeleteLatest={deleteLatestRecord} />
       <DataBackup records={records} onImport={importRecords} />
+      <WechatCTA />
     </div>
   );
 }
