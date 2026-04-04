@@ -15,10 +15,10 @@ export function WechatCTA() {
   return (
     <div className="rounded-xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-4">
       <p className="text-sm font-medium mb-1">
-        加入 AI 交流群
+        AI 小作坊
       </p>
       <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-3 leading-relaxed">
-        AI 工具推荐 · Prompt 技巧 · 编程提效 · 副业实战
+        用 AI 做的小工具都在这 · 新品尝鲜 · 反馈直达 · 一起共创
       </p>
       <button
         onClick={handleCopy}
@@ -30,7 +30,7 @@ export function WechatCTA() {
         {copied ? "已复制微信号" : "复制微信号：_xueyuanhuang"}
       </button>
       <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center mt-2">
-        添加后备注「AI」拉你进群
+        添加后备注「小作坊」拉你进群
       </p>
     </div>
   );
