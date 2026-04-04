@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 时间沙漏
 
-## Getting Started
+一个「倒叙标记」式的时间记录工具。不是提前说要做什么，而是事后回顾刚才做了什么。
 
-First, run the development server:
+**在线使用：https://time-tracker-78s.pages.dev**
+
+## 使用方式
+
+1. 打开 App，计时器自动启动
+2. 做完一件事，输入「刚才在做什么」，点击记录
+3. 自动承接上一段结束时间，形成连续无间隙的时间线
+4. 支持 iPhone 添加到主屏幕，体验如原生 App
+
+## 特性
+
+- 倒叙标记：事后回顾，不打断心流
+- 无缝时间线：每次标记自动衔接，没有空隙
+- 离线可用：数据存本地 IndexedDB，无需联网
+- PWA 支持：添加到主屏幕，全屏无地址栏
+- 导出备份：一键导出/导入 JSON，数据不丢失
+- 编辑撤销：点击记录可修改，最新记录可撤销
+
+## 技术栈
+
+- Next.js + TypeScript + Tailwind CSS
+- IndexedDB 本地持久化
+- Service Worker 离线缓存
+- Cloudflare Pages 部署
+
+## 本地开发
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 联系作者
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+微信：`_xueyuanhuang`（备注「小作坊」进 AI 小作坊群）
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+用 AI 做的小工具都在这，新品尝鲜、反馈直达、一起共创。
