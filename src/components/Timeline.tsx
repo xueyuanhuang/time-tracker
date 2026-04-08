@@ -7,7 +7,8 @@ import { formatDuration, formatTime } from "@/lib/time";
 interface TimelineProps {
   records: TimeRecord[];
   onUpdateLabel: (id: string, label: string) => void;
-  onDeleteLatest: () => void;
+  onDeleteLatest?: () => void;
+  emptyMessage?: string;
 }
 
 function TimelineItem({
@@ -110,11 +111,16 @@ function TimelineItem({
   );
 }
 
-export function Timeline({ records, onUpdateLabel, onDeleteLatest }: TimelineProps) {
+export function Timeline({
+  records,
+  onUpdateLabel,
+  onDeleteLatest,
+  emptyMessage,
+}: TimelineProps) {
   if (records.length === 0) {
     return (
       <p className="text-center text-zinc-400 dark:text-zinc-500 py-8 text-sm">
-        还没有记录，输入刚刚做的事情开始吧
+        {emptyMessage ?? "还没有记录，输入刚刚做的事情开始吧"}
       </p>
     );
   }
@@ -128,7 +134,7 @@ export function Timeline({ records, onUpdateLabel, onDeleteLatest }: TimelinePro
           key={record.id}
           record={record}
           onUpdateLabel={onUpdateLabel}
-          isLatest={index === 0}
+          isLatest={index === 0 && !!onDeleteLatest}
           onDelete={index === 0 ? onDeleteLatest : undefined}
         />
       ))}
