@@ -25,10 +25,23 @@ export function useTimeRecords() {
   }, [records, initialStart]);
 
   useEffect(() => {
+    async function readRecordsWithRetry(retries = 3): Promise<TimeRecord[]> {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const result = await getRecords();
+          if (result.length > 0 || i === retries - 1) return result;
+        } catch {
+          // IDB may be transiently unavailable on iOS PWA cold start
+        }
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      return [];
+    }
+
     async function init() {
       await migrateFromLocalStorage();
 
-      const storedRecords = await getRecords();
+      const storedRecords = await readRecordsWithRetry();
       setRecords(storedRecords);
 
       // Only matters when no records exist
