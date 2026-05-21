@@ -8,6 +8,7 @@ import { RecordInput } from "./RecordInput";
 import { Timeline } from "./Timeline";
 import { DataBackup } from "./DataBackup";
 import { WechatCTA } from "./WechatCTA";
+import { VisitCounter } from "./VisitCounter";
 
 export function TimeTracker() {
   const {
@@ -72,6 +73,7 @@ export function TimeTracker() {
       />
       <DataBackup records={records} onImport={importRecords} />
       <WechatCTA />
+      <VisitCounter />
     </div>
   );
 }

@@ -25,6 +25,7 @@
 - Next.js + TypeScript + Tailwind CSS
 - IndexedDB 本地持久化
 - Service Worker 离线缓存
+- Cloudflare Pages Functions + KV 访问计数
 - Cloudflare Pages 部署
 
 ## 本地开发
